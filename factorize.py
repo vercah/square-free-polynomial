@@ -143,10 +143,18 @@ def main():
     f = args.coefficients
 
     factors = square_free_factorization(f)
+    printfactors = ""
+    for i in range(len(factors)):
+        exp, poly = factors[i]
+        if exp > 1:
+            printfactors += f"({poly_to_string(poly)})^{exp}"
+        else:
+            printfactors += f"({poly_to_string(poly)})"
+        if i < len(factors) - 1:
+            printfactors += " * "
 
     print("\nSquare-free factors:")
-    for (i, h) in factors:
-        print("power", i, ":", h)
+    print(poly_to_string(f), "=", printfactors)
 
 if __name__ == "__main__":
     main()
