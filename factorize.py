@@ -8,6 +8,7 @@ def strip(poly):
     return poly
 
 def pol_add(a, b): # součet dvou polynomů
+    print(f"Adding polynomials: {poly_to_string(a)} + {poly_to_string(b)}")
     n = max(len(a), len(b))
     result = []
     for i in range(n):
@@ -17,6 +18,7 @@ def pol_add(a, b): # součet dvou polynomů
     return strip(result)
 
 def pol_sub(a, b): # rozdíl dvou polynomů
+    print(f"Subtracting polynomials: {poly_to_string(a)} - {poly_to_string(b)}")
     n = max(len(a), len(b))
     result = []
     for i in range(n):
@@ -26,6 +28,7 @@ def pol_sub(a, b): # rozdíl dvou polynomů
     return strip(result)
 
 def pol_mul(a, b): # součin dvou polynomů
+    print(f"Multiplying polynomials: {poly_to_string(a)} * {poly_to_string(b)}")
     result = [0] * (len(a) + len(b) - 1)
     for i in range(len(a)):
         for j in range(len(b)):
@@ -33,6 +36,7 @@ def pol_mul(a, b): # součin dvou polynomů
     return strip(result)
 
 def pol_derivative(a): # derivace polynomu
+    print(f"Calculating derivative of polynomial: {poly_to_string(a)}")
     if len(a) <= 1:
         return [0]
     result = []
@@ -41,6 +45,7 @@ def pol_derivative(a): # derivace polynomu
     return strip(result)
 
 def pol_div(a, b): # dělení polynomů, vrací (podíl, zbytek)
+    print(f"Dividing polynomials: {poly_to_string(a)} / {poly_to_string(b)}")
     a = a[:]  # kopie
     b = strip(b[:])
     if len(b) == 1 and b[0] == 0:
@@ -51,6 +56,7 @@ def pol_div(a, b): # dělení polynomů, vrací (podíl, zbytek)
 
     while len(a) >= len(b):
         coef = a[-1] // div_lead
+        print(f"Leading coefficient for this step: {coef}")
         shift = len(a) - len(b)
         result[shift] = coef
 
@@ -61,6 +67,7 @@ def pol_div(a, b): # dělení polynomů, vrací (podíl, zbytek)
     return strip(result), strip(a)
 
 def pol_gcd(a, b): # gcd dvou polynomů, euklidův algoritmus
+    print(f"Calculating GCD of polynomials: {poly_to_string(a)}, {poly_to_string(b)}")
     a = strip(a[:])
     b = strip(b[:])
     while b != [0]:
@@ -72,6 +79,7 @@ def pol_gcd(a, b): # gcd dvou polynomů, euklidův algoritmus
     return a
 
 def square_free_factorization(f): #square-free faktorizace
+    print(f"Starting square-free factorization for polynomial: {poly_to_string(f)}")
     f = strip(f[:])
     f_der = pol_derivative(f)
 
