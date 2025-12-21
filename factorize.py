@@ -1,6 +1,12 @@
 #!/usr/bin/env python3
 
 import argparse
+from fractions import Fraction
+from math import gcd
+from functools import reduce
+
+def to_fraction_poly(p):
+    return [Fraction(c) for c in p]
 
 def strip(poly):
     while len(poly) > 1 and poly[-1] == 0: # oříznutí vedoucích nul
@@ -44,25 +50,29 @@ def pol_derivative(a): # derivace polynomu
         result.append(a[i] * i)
     return strip(result)
 
-def pol_div(a, b): # dělení polynomů, vrací (podíl, zbytek)
+def pol_div(a, b): # dělení polynomů v Q, vrací (podíl, zbytek)
     print(f"Dividing polynomials: {poly_to_string(a)} / {poly_to_string(b)}")
-    a = a[:]  # kopie
-    b = strip(b[:])
-    if len(b) == 1 and b[0] == 0:
+    a = [Fraction(x) for x in a]
+    b = [Fraction(x) for x in b]
+
+    a = strip(a)
+    b = strip(b)
+
+    if b == [0]:
         raise ZeroDivisionError("Division by zero polynomial")
 
-    result = [0] * (len(a) - len(b) + 1)
-    div_lead = b[-1]
+    result = [Fraction(0)] * (len(a) - len(b) + 1)
 
     while len(a) >= len(b):
-        coef = a[-1] // div_lead
-        print(f"Leading coefficient for this step: {coef}")
+        print(f"Current dividend: {poly_to_string(a)}, leading divisor: {b[-1]}, leading dividend: {a[-1]}")
+        coef = a[-1] / b[-1] #přesné dělení v Q
         shift = len(a) - len(b)
         result[shift] = coef
 
         for i in range(len(b)):
             a[shift + i] -= coef * b[i]
-        strip(a)
+        a = strip(a)
+        print(f"New dividend after subtraction: {poly_to_string(a)}")
 
     return strip(result), strip(a)
 
@@ -77,6 +87,20 @@ def pol_gcd(a, b): # gcd dvou polynomů, euklidův algoritmus
     if a[-1] < 0:
         a = [-x for x in a]
     return a
+
+def normalize_to_Z(p):
+    denoms = [c.denominator for c in p]
+    def lcm(a, b):
+        return a * b // gcd(a, b)
+    L = reduce(lcm, denoms, 1) #vrati lcm všech jmenovatelů
+
+    q = [int(c * L) for c in p]
+
+    # normalizace: vedoucí koeficient kladný
+    if q[-1] < 0:
+        q = [-x for x in q]
+
+    return strip(q)
 
 def square_free_factorization(f): #square-free faktorizace
     print(f"Starting square-free factorization for polynomial: {poly_to_string(f)}")
@@ -149,20 +173,31 @@ def main():
 
     args = parser.parse_args()
     f = args.coefficients
-
-    factors = square_free_factorization(f)
+    factors = []
+    #factors = square_free_factorization(f)
     printfactors = ""
-    for i in range(len(factors)):
-        exp, poly = factors[i]
-        if exp > 1:
-            printfactors += f"({poly_to_string(poly)})^{exp}"
-        else:
-            printfactors += f"({poly_to_string(poly)})"
-        if i < len(factors) - 1:
-            printfactors += " * "
+    if factors:
+        for i in range(len(factors)):
+            exp, poly = factors[i]
+            if exp > 1:
+                printfactors += f"({poly_to_string(poly)})^{exp}"
+            else:
+                printfactors += f"({poly_to_string(poly)})"
+            if i < len(factors) - 1:
+                printfactors += " * "
 
-    print("\nSquare-free factors:")
-    print(poly_to_string(f), "=", printfactors)
+    #print("\nSquare-free factors:")
+    #print(poly_to_string(f), "=", printfactors)
+    g = [1, 1, -1, -1, -1, -1, 1, 1]  
+    print(f"Test derivative: {poly_to_string(g)}")
+    h = pol_derivative(g)
+    print(f"Derivative: {poly_to_string(h)}")
+    print(f"Test division: {poly_to_string(g)} / {poly_to_string(h)}")
+    #q, r = pol_div(g, h)
+    #print(f"Quotient: {poly_to_string(q)}, Remainder: {poly_to_string(r)}")
+    #print("\n Check:")
+    #s = pol_add(pol_mul(q, h), r)
+    #print(f"Reconstructed polynomial: {poly_to_string(s)}")
 
 if __name__ == "__main__":
     main()
