@@ -94,6 +94,37 @@ def square_free_factorization(f): #square-free faktorizace
 
     return factors
 
+def poly_to_string(p): #lepší výpis polynomu
+    terms = []
+    for i, coef in enumerate(p):
+        if coef == 0:
+            continue
+
+        if coef > 0 and terms:
+            sign = " + "
+        elif coef < 0:
+            sign = " - "
+        else:
+            sign = ""
+        c = abs(coef)
+
+        if i == 0:
+            term = f"{c}"
+        elif i == 1:
+            term = f"{'' if c == 1 else c}x"
+        else:
+            term = f"{'' if c == 1 else c}x^{i}"
+
+        if terms:
+            terms.append(sign + term)
+        else:
+            if coef < 0:
+                terms.append("-" + term)
+            else:
+                terms.append(term)
+    if not terms:
+        return "0"
+    return "".join(terms)
 
 
 def main():
