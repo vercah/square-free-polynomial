@@ -14,7 +14,6 @@ def strip(poly):
     return poly
 
 def pol_add(a, b): # součet dvou polynomů
-    print(f"Adding polynomials: {poly_to_string(a)} + {poly_to_string(b)}")
     n = max(len(a), len(b))
     result = []
     for i in range(n):
@@ -24,7 +23,6 @@ def pol_add(a, b): # součet dvou polynomů
     return strip(result)
 
 def pol_sub(a, b): # rozdíl dvou polynomů
-    print(f"Subtracting polynomials: {poly_to_string(a)} - {poly_to_string(b)}")
     n = max(len(a), len(b))
     result = []
     for i in range(n):
@@ -34,7 +32,6 @@ def pol_sub(a, b): # rozdíl dvou polynomů
     return strip(result)
 
 def pol_mul(a, b): # součin dvou polynomů
-    print(f"Multiplying polynomials: {poly_to_string(a)} * {poly_to_string(b)}")
     result = [0] * (len(a) + len(b) - 1)
     for i in range(len(a)):
         for j in range(len(b)):
@@ -42,7 +39,6 @@ def pol_mul(a, b): # součin dvou polynomů
     return strip(result)
 
 def pol_derivative(a): # derivace polynomu
-    print(f"Calculating derivative of polynomial: {poly_to_string(a)}")
     if len(a) <= 1:
         return [0]
     result = []
@@ -51,7 +47,6 @@ def pol_derivative(a): # derivace polynomu
     return strip(result)
 
 def pol_div(a, b): # dělení polynomů v Q, vrací (podíl, zbytek)
-    #print(f"Dividing polynomials: {poly_to_string(a)} / {poly_to_string(b)}")
     a = [Fraction(x) for x in a]
     b = [Fraction(x) for x in b]
 
@@ -64,7 +59,6 @@ def pol_div(a, b): # dělení polynomů v Q, vrací (podíl, zbytek)
     result = [Fraction(0)] * (len(a) - len(b) + 1)
 
     while len(a) >= len(b):
-        #print(f"Current dividend: {poly_to_string(a)}, leading divisor: {b[-1]}, leading dividend: {a[-1]}")
         if a == [Fraction(0)]:
             break
         coef = a[-1] / b[-1] #přesné dělení v Q
@@ -74,7 +68,6 @@ def pol_div(a, b): # dělení polynomů v Q, vrací (podíl, zbytek)
         for i in range(len(b)):
             a[shift + i] -= coef * b[i]
         a = strip(a)
-        #print(f"New dividend after subtraction: {poly_to_string(a)}")
 
     return strip(result), strip(a)
 
@@ -91,25 +84,20 @@ def lcm(a, b):
     return a * b // gcd(a, b)
 
 def normalize_to_Z(p):
-    print(f"Normalizing polynomial to Z[x]: {poly_to_string(p)}")
     denoms = [c.denominator for c in p]    
     L = reduce(lcm, denoms, 1) #vrati lcm všech jmenovatelů
-    #print(f"Least common multiple of denominators: {L}")
 
     q = [int(c * L) for c in p]
     G = reduce(gcd, [abs(x) for x in q], 0)
-    #print(f"GCD of coefficients before normalization: {G}")
     
     if G > 1:
         q = [x // G for x in q]
 
     if q[-1] < 0:
         q = [-x for x in q]
-    print(f"Normalized polynomial: {poly_to_string(strip(q))}")
     return strip(q)
 
 def square_free_factorization(f): #square-free faktorizace
-    print(f"Starting square-free factorization for polynomial: {poly_to_string(f)}")
     f = strip(f[:])
     f_der = pol_derivative(f)
 
@@ -130,12 +118,14 @@ def square_free_factorization(f): #square-free faktorizace
 
     return factors
 
-def poly_to_string(p): #lepší výpis polynomu
+def poly_to_string(p): #lepší vypis polynomu
     terms = []
-    for i, coef in enumerate(p):
+    n = len(p)
+
+    for i in range(n - 1, -1, -1):
+        coef = p[i]
         if coef == 0:
             continue
-
         if coef > 0 and terms:
             sign = " + "
         elif coef < 0:
@@ -143,14 +133,12 @@ def poly_to_string(p): #lepší výpis polynomu
         else:
             sign = ""
         c = abs(coef)
-
         if i == 0:
             term = f"{c}"
         elif i == 1:
             term = f"{'' if c == 1 else c}x"
         else:
             term = f"{'' if c == 1 else c}x^{i}"
-
         if terms:
             terms.append(sign + term)
         else:
@@ -161,6 +149,17 @@ def poly_to_string(p): #lepší výpis polynomu
     if not terms:
         return "0"
     return "".join(terms)
+
+def factors_to_string(factors):
+    result = ""
+    for i, (exp, poly) in enumerate(factors):
+        if exp > 1:
+            result += f"({poly_to_string(poly)})^{exp}"
+        else:
+            result += f"({poly_to_string(poly)})"
+        if i < len(factors) - 1:
+            result += " * "
+    return result
 
 
 def main():
@@ -178,37 +177,9 @@ def main():
     args = parser.parse_args()
     f = args.coefficients
     factors = []
-    #factors = square_free_factorization(f)
-    printfactors = ""
-    if factors:
-        for i in range(len(factors)):
-            exp, poly = factors[i]
-            if exp > 1:
-                printfactors += f"({poly_to_string(poly)})^{exp}"
-            else:
-                printfactors += f"({poly_to_string(poly)})"
-            if i < len(factors) - 1:
-                printfactors += " * "
-
-
-    f0 = [1, 1, -1, -1, -1, -1, 1, 1]
-    fder = pol_derivative(f0)
-    f1 = pol_gcd(f0, fder)
-    print(f"GCD of {poly_to_string(f0)} and its derivative {poly_to_string(fder)} is f1 = {poly_to_string(f1)}")
-    g1, _ = pol_div(f0, f1)
-    print(f"Quotient g1 = {poly_to_string(g1)}")
-    g2 = pol_gcd(f1, g1)
-    print(f"GCD of f1 and g1 is g2 = {poly_to_string(g2)}")
-    f2, _ = pol_div(f1, g2)
-    print(f"Quotient f2 = {poly_to_string(f2)}")
-    g3 = pol_gcd(g2, f2)
-    print(f"GCD of g2 and f2 is g3 = {poly_to_string(g3)}")
-    f3, _ = pol_div(f2, g3)
-    print(f"Quotient f3 = {poly_to_string(f3)}")
-    g4 = pol_gcd(g3, f3)
-    print(f"GCD of g3 and f3 is g4 = {poly_to_string(g4)}")
-    f4, _ = pol_div(f3, g4)
-    print(f"Quotient f4 = {poly_to_string(f4)}")
+    factors = square_free_factorization(f)
+    print(f"Square-free factorization of f(x) = {poly_to_string(f)} is:")
+    print(factors_to_string(factors))
 
 
 if __name__ == "__main__":
