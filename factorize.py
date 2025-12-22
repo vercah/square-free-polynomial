@@ -51,7 +51,7 @@ def pol_derivative(a): # derivace polynomu
     return strip(result)
 
 def pol_div(a, b): # dělení polynomů v Q, vrací (podíl, zbytek)
-    print(f"Dividing polynomials: {poly_to_string(a)} / {poly_to_string(b)}")
+    #print(f"Dividing polynomials: {poly_to_string(a)} / {poly_to_string(b)}")
     a = [Fraction(x) for x in a]
     b = [Fraction(x) for x in b]
 
@@ -64,7 +64,9 @@ def pol_div(a, b): # dělení polynomů v Q, vrací (podíl, zbytek)
     result = [Fraction(0)] * (len(a) - len(b) + 1)
 
     while len(a) >= len(b):
-        print(f"Current dividend: {poly_to_string(a)}, leading divisor: {b[-1]}, leading dividend: {a[-1]}")
+        #print(f"Current dividend: {poly_to_string(a)}, leading divisor: {b[-1]}, leading dividend: {a[-1]}")
+        if a == [Fraction(0)]:
+            break
         coef = a[-1] / b[-1] #přesné dělení v Q
         shift = len(a) - len(b)
         result[shift] = coef
@@ -72,34 +74,38 @@ def pol_div(a, b): # dělení polynomů v Q, vrací (podíl, zbytek)
         for i in range(len(b)):
             a[shift + i] -= coef * b[i]
         a = strip(a)
-        print(f"New dividend after subtraction: {poly_to_string(a)}")
+        #print(f"New dividend after subtraction: {poly_to_string(a)}")
 
     return strip(result), strip(a)
 
-def pol_gcd(a, b): # gcd dvou polynomů, euklidův algoritmus
-    print(f"Calculating GCD of polynomials: {poly_to_string(a)}, {poly_to_string(b)}")
-    a = strip(a[:])
-    b = strip(b[:])
-    while b != [0]:
+def pol_gcd(a, b): #eukleidův algoritmus v Q[x], na konci normalizace do Z[x]
+    a = to_fraction_poly(a)
+    b = to_fraction_poly(b)
+
+    while b != [Fraction(0)]:
         _, r = pol_div(a, b)
         a, b = b, r
-    # normalizace - vedoucí koeficient musí být kladný
-    if a[-1] < 0:
-        a = [-x for x in a]
-    return a
+    return normalize_to_Z(a)
+
+def lcm(a, b):
+    return a * b // gcd(a, b)
 
 def normalize_to_Z(p):
-    denoms = [c.denominator for c in p]
-    def lcm(a, b):
-        return a * b // gcd(a, b)
+    print(f"Normalizing polynomial to Z[x]: {poly_to_string(p)}")
+    denoms = [c.denominator for c in p]    
     L = reduce(lcm, denoms, 1) #vrati lcm všech jmenovatelů
+    #print(f"Least common multiple of denominators: {L}")
 
     q = [int(c * L) for c in p]
+    G = reduce(gcd, [abs(x) for x in q], 0)
+    #print(f"GCD of coefficients before normalization: {G}")
+    
+    if G > 1:
+        q = [x // G for x in q]
 
-    # normalizace: vedoucí koeficient kladný
     if q[-1] < 0:
         q = [-x for x in q]
-
+    print(f"Normalized polynomial: {poly_to_string(strip(q))}")
     return strip(q)
 
 def square_free_factorization(f): #square-free faktorizace
@@ -112,14 +118,12 @@ def square_free_factorization(f): #square-free faktorizace
 
     factors = []
     j = 1
-
     while g_j != [1]:
         g_jj = pol_gcd(f_j, g_j)
         f_jj, _ = pol_div(f_j, g_jj)
         h_j, _ = pol_div(g_j, g_jj)
         if h_j != [1]:
             factors.append((j, h_j))
-
         f_j = f_jj
         g_j = g_jj
         j += 1
@@ -186,18 +190,26 @@ def main():
             if i < len(factors) - 1:
                 printfactors += " * "
 
-    #print("\nSquare-free factors:")
-    #print(poly_to_string(f), "=", printfactors)
-    g = [1, 1, -1, -1, -1, -1, 1, 1]  
-    print(f"Test derivative: {poly_to_string(g)}")
-    h = pol_derivative(g)
-    print(f"Derivative: {poly_to_string(h)}")
-    print(f"Test division: {poly_to_string(g)} / {poly_to_string(h)}")
-    #q, r = pol_div(g, h)
-    #print(f"Quotient: {poly_to_string(q)}, Remainder: {poly_to_string(r)}")
-    #print("\n Check:")
-    #s = pol_add(pol_mul(q, h), r)
-    #print(f"Reconstructed polynomial: {poly_to_string(s)}")
+
+    f0 = [1, 1, -1, -1, -1, -1, 1, 1]
+    fder = pol_derivative(f0)
+    f1 = pol_gcd(f0, fder)
+    print(f"GCD of {poly_to_string(f0)} and its derivative {poly_to_string(fder)} is f1 = {poly_to_string(f1)}")
+    g1, _ = pol_div(f0, f1)
+    print(f"Quotient g1 = {poly_to_string(g1)}")
+    g2 = pol_gcd(f1, g1)
+    print(f"GCD of f1 and g1 is g2 = {poly_to_string(g2)}")
+    f2, _ = pol_div(f1, g2)
+    print(f"Quotient f2 = {poly_to_string(f2)}")
+    g3 = pol_gcd(g2, f2)
+    print(f"GCD of g2 and f2 is g3 = {poly_to_string(g3)}")
+    f3, _ = pol_div(f2, g3)
+    print(f"Quotient f3 = {poly_to_string(f3)}")
+    g4 = pol_gcd(g3, f3)
+    print(f"GCD of g3 and f3 is g4 = {poly_to_string(g4)}")
+    f4, _ = pol_div(f3, g4)
+    print(f"Quotient f4 = {poly_to_string(f4)}")
+
 
 if __name__ == "__main__":
     main()
