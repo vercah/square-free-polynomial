@@ -21,9 +21,7 @@ python3 factorize.py <coefficients>
 Coefficients are given **from lowest degree to highest**.
 
 Example for  
-\[
 f(x) = x^3 - 5x^2 + 2
-\]
 
 ```bash
 python3 factorize.py 2 0 -5 1
@@ -37,4 +35,5 @@ Uses only Python standard library modules:
 - `fractions`
 - `math`
 - `functools`
+
 
