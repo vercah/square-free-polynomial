@@ -1,12 +1,10 @@
 # Square‑Free Factorization in ℤ[x]
 
-This script computes the square‑free factorization of a polynomial with integer coefficients:
+This script computes the square‑free factorization of a polynomial with integer coefficients
 
-\[
-f(x) = h_1(x)\, h_2(x)^2 \cdots h_k(x)^k,
-\]
+f(x) = h_1(x) h_2(x)^2 ... h_k(x)^k,
 
-where each \(h_i(x)\) is square‑free.
+where each h_i(x) is square‑free.
 
 Polynomial arithmetic (addition, subtraction, multiplication, division, gcd) is implemented manually via python lists in ℤ[x].  
 Division and GCD are computed in **ℚ[x]** using exact rational arithmetic (`fractions.Fraction`), then normalized back to **ℤ[x]**.
@@ -39,3 +37,4 @@ Uses only Python standard library modules:
 - `fractions`
 - `math`
 - `functools`
+
